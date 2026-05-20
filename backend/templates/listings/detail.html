@@ -72,39 +72,37 @@
                     <h3 class="text-2xl font-bold">Reviews</h3>
                 </div>
                 
-                {% with reviews=listing.bookings.filter.review.all %}
-                    {% if listing.bookings.count > 0 %}
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {% for booking in listing.bookings.all %}
-                                {% if booking.review %}
-                                <div>
-                                    <div class="flex items-center mb-4">
-                                        <div class="h-10 w-10 bg-gray-300 rounded-full flex items-center justify-center text-white mr-3">
-                                            {{ booking.review.reviewer.username|first|upper }}
-                                        </div>
-                                        <div>
-                                            <h4 class="font-semibold">{{ booking.review.reviewer.username }}</h4>
-                                            <p class="text-sm text-gray-500">{{ booking.review.created_at|date:"F Y" }}</p>
-                                        </div>
+                {% if listing.bookings.all %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {% for booking in listing.bookings.all %}
+                            {% if booking.review %}
+                            <div>
+                                <div class="flex items-center mb-4">
+                                    <div class="h-10 w-10 bg-gray-300 rounded-full flex items-center justify-center text-white mr-3">
+                                        {{ booking.review.reviewer.username|first|upper }}
                                     </div>
-                                    <div class="flex items-center mb-2 text-xs">
-                                        {% for i in "12345"|make_list %}
-                                            {% if forloop.counter <= booking.review.rating %}
-                                                <i class="fas fa-star"></i>
-                                            {% else %}
-                                                <i class="far fa-star"></i>
-                                            {% endif %}
-                                        {% endfor %}
+                                    <div>
+                                        <h4 class="font-semibold">{{ booking.review.reviewer.username }}</h4>
+                                        <p class="text-sm text-gray-500">{{ booking.review.created_at|date:"F Y" }}</p>
                                     </div>
-                                    <p class="text-gray-700 leading-relaxed">{{ booking.review.comment }}</p>
                                 </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <p class="text-gray-500">No reviews yet.</p>
-                    {% endif %}
-                {% endwith %}
+                                <div class="flex items-center mb-2 text-xs">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= booking.review.rating %}
+                                            <i class="fas fa-star text-black"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-black"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p class="text-gray-700 leading-relaxed">{{ booking.review.comment }}</p>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-500">No reviews yet.</p>
+                {% endif %}
             </div>
         </div>
 
