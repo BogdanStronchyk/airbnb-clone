@@ -7,18 +7,42 @@ from bookings.models import Booking
 from datetime import datetime
 from .serializers import ServiceCategorySerializer, ServiceListingSerializer, AvailabilitySerializer
 
+from django.db.models import Q
+
 def home_view(request):
     categories = ServiceCategory.objects.all()
     listings = ServiceListing.objects.filter(is_active=True)
     
     category_id = request.GET.get('category')
+    location_query = request.GET.get('location')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+
     if category_id:
         listings = listings.filter(category_id=category_id)
+        
+    if location_query:
+        listings = listings.filter(location__icontains=location_query)
+        
+    if min_price:
+        try:
+            listings = listings.filter(base_price__gte=float(min_price))
+        except ValueError:
+            pass
+            
+    if max_price:
+        try:
+            listings = listings.filter(base_price__lte=float(max_price))
+        except ValueError:
+            pass
         
     context = {
         'categories': categories,
         'listings': listings,
-        'active_category': category_id
+        'active_category': category_id,
+        'search_location': location_query,
+        'search_min_price': min_price,
+        'search_max_price': max_price,
     }
     return render(request, 'listings/index.html', context)
 
