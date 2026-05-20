@@ -65,6 +65,8 @@ def search_view(request):
     }
     return render(request, 'listings/search.html', context)
 
+import json
+
 def listing_detail(request, pk):
     listing = get_object_or_404(ServiceListing, pk=pk)
     # Get future confirmed bookings for this listing to show occupancy
@@ -75,9 +77,18 @@ def listing_detail(request, pk):
         end_date__gte=timezone.now().date()
     ).order_by('start_date')
     
+    # Prepare disabled dates for Flatpickr
+    disabled_dates = []
+    for period in occupied_periods:
+        disabled_dates.append({
+            "from": period.start_date.strftime('%Y-%m-%d'),
+            "to": period.end_date.strftime('%Y-%m-%d')
+        })
+    
     return render(request, 'listings/detail.html', {
         'listing': listing,
-        'occupied_periods': occupied_periods
+        'occupied_periods': occupied_periods,
+        'disabled_dates_json': json.dumps(disabled_dates)
     })
 
 @login_required(login_url='/api/users/login/')

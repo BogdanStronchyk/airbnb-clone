@@ -3,6 +3,10 @@
 {% block title %}{{ listing.title }} - Airbnb Clone{% endblock %}
 
 {% block content %}
+<!-- Include Flatpickr CSS & JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <div class="max-w-5xl mx-auto">
     <div class="mb-6">
         <h1 class="text-3xl font-bold mb-2">{{ listing.title }}</h1>
@@ -140,11 +144,11 @@
                         <div class="grid grid-cols-2 border-b border-gray-300">
                             <div class="p-3 border-r border-gray-300">
                                 <label class="block text-xs font-bold uppercase mb-1">Check-in</label>
-                                <input type="date" name="start_date" required class="w-full text-sm outline-none bg-transparent">
+                                <input type="text" id="checkin-date" name="start_date" placeholder="Add date" required class="w-full text-sm outline-none bg-transparent cursor-pointer bg-white">
                             </div>
                             <div class="p-3">
                                 <label class="block text-xs font-bold uppercase mb-1">Checkout</label>
-                                <input type="date" name="end_date" required class="w-full text-sm outline-none bg-transparent">
+                                <input type="text" id="checkout-date" name="end_date" placeholder="Add date" required class="w-full text-sm outline-none bg-transparent cursor-pointer bg-white">
                             </div>
                         </div>
                         <div class="p-3">
@@ -173,4 +177,58 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Collect occupied date ranges passed from the backend
+        const disabledDateRanges = JSON.parse('{{ disabled_dates_json|escapejs }}');
+
+        // Initialize Flatpickr on the date inputs
+        const checkinInput = document.getElementById("checkin-date");
+        const checkoutInput = document.getElementById("checkout-date");
+
+        let checkoutPicker;
+
+        const checkinPicker = flatpickr(checkinInput, {
+            minDate: "today",
+            disable: disabledDateRanges,
+            dateFormat: "Y-m-d",
+            onChange: function(selectedDates, dateStr, instance) {
+                if (selectedDates.length > 0) {
+                    // Update minimum date for checkout to be the day after checkin
+                    const minCheckoutDate = new Date(selectedDates[0]);
+                    minCheckoutDate.setDate(minCheckoutDate.getDate() + 1);
+                    checkoutPicker.set("minDate", minCheckoutDate);
+                    
+                    // Optional: find the next disabled date after checkin to set maxDate for checkout
+                    let maxDate = null;
+                    for (let i = 0; i < disabledDateRanges.length; i++) {
+                        const disableStart = new Date(disabledDateRanges[i].from);
+                        if (disableStart > selectedDates[0]) {
+                            if (!maxDate || disableStart < maxDate) {
+                                maxDate = disableStart;
+                            }
+                        }
+                    }
+                    if (maxDate) {
+                        checkoutPicker.set("maxDate", maxDate);
+                    } else {
+                        checkoutPicker.set("maxDate", null); // Remove max limit if no conflict
+                    }
+                    
+                    // Clear checkout if it's before the new checkin
+                    if (checkoutPicker.selectedDates[0] <= selectedDates[0] || (maxDate && checkoutPicker.selectedDates[0] >= maxDate)) {
+                        checkoutPicker.clear();
+                    }
+                }
+            }
+        });
+
+        checkoutPicker = flatpickr(checkoutInput, {
+            minDate: "today",
+            disable: disabledDateRanges,
+            dateFormat: "Y-m-d",
+        });
+    });
+</script>
 {% endblock %}
