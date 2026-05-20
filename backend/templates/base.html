@@ -22,11 +22,14 @@
                     <form action="{% url 'search_page' %}" method="get" class="flex items-center bg-white border border-gray-300 rounded-full py-1 px-4 shadow-sm hover:shadow-md transition w-full">
                         <input type="text" name="location" placeholder="Anywhere" value="{{ request.GET.location }}" class="text-sm font-semibold w-1/2 outline-none bg-transparent placeholder-gray-800 pl-2">
                         <div class="h-6 border-r border-gray-300 mx-2"></div>
-                        <div class="relative w-1/2">
-                            <input type="date" name="date" value="{{ request.GET.date }}" class="text-sm text-gray-500 w-full outline-none bg-transparent pr-2 opacity-0 absolute top-0 left-0 bottom-0 cursor-pointer" onchange="this.nextElementSibling.textContent = this.value || 'Any Time'">
-                            <div class="text-sm font-semibold text-gray-800 pointer-events-none w-full truncate">{% if request.GET.date %}{{ request.GET.date }}{% else %}Any Time{% endif %}</div>
-                        </div>
-                        <button type="submit" class="ml-auto bg-rose-500 hover:bg-rose-600 p-2 rounded-full text-white transition ml-2 z-10">
+                        <input type="text" 
+                               name="date" 
+                               placeholder="Any time" 
+                               value="{{ request.GET.date }}" 
+                               onfocus="(this.type='date')" 
+                               onblur="(this.value === '' ? this.type='text' : this.type='date')" 
+                               class="text-sm font-semibold text-gray-800 w-1/2 outline-none bg-transparent pr-2 cursor-pointer">
+                        <button type="submit" class="ml-auto bg-rose-500 hover:bg-rose-600 p-2 rounded-full text-white transition ml-2">
                             <i class="fas fa-search text-xs"></i>
                         </button>
                     </form>
