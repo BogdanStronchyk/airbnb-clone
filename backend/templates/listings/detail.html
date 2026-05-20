@@ -64,6 +64,26 @@
                 </ul>
             </div>
             {% endif %}
+
+            <!-- Occupancy Section -->
+            <div class="py-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold mb-4">Availability</h3>
+                {% if occupied_periods %}
+                    <p class="text-gray-600 mb-3 text-sm">This listing is currently booked for the following dates:</p>
+                    <ul class="space-y-2">
+                        {% for period in occupied_periods %}
+                            <li class="flex items-center text-sm text-rose-600 bg-rose-50 px-3 py-2 rounded-lg inline-flex">
+                                <i class="fas fa-calendar-times mr-2"></i>
+                                {{ period.start_date|date:"M d, Y" }} to {{ period.end_date|date:"M d, Y" }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-green-600 text-sm flex items-center">
+                        <i class="fas fa-calendar-check mr-2"></i> Currently open for bookings!
+                    </p>
+                {% endif %}
+            </div>
             
             <!-- Reviews Section -->
             <div class="py-6 border-b border-gray-200">

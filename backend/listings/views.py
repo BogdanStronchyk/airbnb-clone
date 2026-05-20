@@ -67,7 +67,18 @@ def search_view(request):
 
 def listing_detail(request, pk):
     listing = get_object_or_404(ServiceListing, pk=pk)
-    return render(request, 'listings/detail.html', {'listing': listing})
+    # Get future confirmed bookings for this listing to show occupancy
+    from django.utils import timezone
+    occupied_periods = Booking.objects.filter(
+        listing=listing, 
+        status='confirmed', 
+        end_date__gte=timezone.now().date()
+    ).order_by('start_date')
+    
+    return render(request, 'listings/detail.html', {
+        'listing': listing,
+        'occupied_periods': occupied_periods
+    })
 
 @login_required(login_url='/api/users/login/')
 def book_listing(request, pk):
@@ -83,6 +94,18 @@ def book_listing(request, pk):
             num_days = (end_date - start_date).days
             if num_days <= 0:
                 messages.error(request, "Checkout date must be after check-in date.")
+                return redirect('listing_detail', pk=pk)
+                
+            # Check for overlapping bookings
+            overlapping_bookings = Booking.objects.filter(
+                listing=listing,
+                status='confirmed',
+                start_date__lt=end_date,
+                end_date__gt=start_date
+            )
+            
+            if overlapping_bookings.exists():
+                messages.error(request, "Sorry, those dates are already booked.")
                 return redirect('listing_detail', pk=pk)
                 
             total_price = listing.base_price * num_days
