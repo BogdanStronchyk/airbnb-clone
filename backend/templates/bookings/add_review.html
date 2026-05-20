@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Review {{ booking.listing.title }} - Airbnb Clone{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto bg-white p-8 border border-gray-200 rounded-2xl shadow-sm">
+    <h2 class="text-2xl font-bold mb-2">How was your stay?</h2>
+    <p class="text-gray-600 mb-6">Leave a review for your trip to {{ booking.listing.location }} ({{ booking.start_date|date:"M d" }} - {{ booking.end_date|date:"M d, Y" }})</p>
+
+    <div class="flex items-center mb-8 bg-gray-50 p-4 rounded-xl">
+        <div class="h-16 w-16 mr-4 rounded-lg overflow-hidden shrink-0">
+            {% if booking.listing.images %}
+                <img src="{{ booking.listing.images.0 }}" alt="" class="w-full h-full object-cover">
+            {% else %}
+                <div class="w-full h-full bg-gray-300 flex items-center justify-center">
+                    <i class="fas fa-image text-gray-500"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div>
+            <h3 class="font-semibold">{{ booking.listing.title }}</h3>
+            <p class="text-sm text-gray-500">Hosted by {{ booking.listing.provider.first_name }}</p>
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'add_review' booking.id %}">
+        {% csrf_token %}
+        
+        <div class="mb-6">
+            <label class="block text-sm font-semibold mb-2">Overall Rating</label>
+            <div class="flex space-x-2 text-2xl text-gray-300" id="star-rating">
+                <input type="hidden" name="rating" id="rating-input" required>
+                <i class="fas fa-star cursor-pointer hover:text-yellow-400 transition" data-value="1"></i>
+                <i class="fas fa-star cursor-pointer hover:text-yellow-400 transition" data-value="2"></i>
+                <i class="fas fa-star cursor-pointer hover:text-yellow-400 transition" data-value="3"></i>
+                <i class="fas fa-star cursor-pointer hover:text-yellow-400 transition" data-value="4"></i>
+                <i class="fas fa-star cursor-pointer hover:text-yellow-400 transition" data-value="5"></i>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-semibold mb-2">Your Review</label>
+            <textarea name="comment" rows="5" required placeholder="Tell future guests about what you loved and anything else they should know about this place." class="w-full border border-gray-300 rounded-xl p-4 outline-none focus:border-black resize-none"></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 rounded-xl transition">
+            Submit Review
+        </button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const stars = document.querySelectorAll('#star-rating i');
+        const ratingInput = document.getElementById('rating-input');
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                ratingInput.value = value;
+                
+                stars.forEach(s => {
+                    if (s.getAttribute('data-value') <= value) {
+                        s.classList.remove('text-gray-300');
+                        s.classList.add('text-yellow-400');
+                    } else {
+                        s.classList.add('text-gray-300');
+                        s.classList.remove('text-yellow-400');
+                    }
+                });
+            });
+            
+            // Optional: Add hover effect logic here for better UX if needed
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Messages - Airbnb Clone{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">Messages</h1>
+    
+    {% if conversations %}
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            {% for conv_user in conversations %}
+                <a href="{% url 'conversation' conv_user.id %}" class="block p-4 border-b border-gray-100 hover:bg-gray-50 transition flex items-center">
+                    <div class="h-12 w-12 bg-gray-300 rounded-full flex items-center justify-center text-xl text-white mr-4">
+                        {{ conv_user.username|first|upper }}
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-lg">{{ conv_user.username }}</h3>
+                        <p class="text-sm text-gray-500">View conversation</p>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="py-12 text-center">
+            <i class="far fa-comments text-5xl text-gray-300 mb-4"></i>
+            <h2 class="text-xl font-semibold mb-2">No messages yet</h2>
+            <p class="text-gray-500">When you contact a host or get a message, it will show up here.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

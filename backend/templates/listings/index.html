@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Airbnb | Holiday rentals, cabins, beach houses & more{% endblock %}
+
+{% block content %}
+<!-- Categories Bar -->
+<div class="flex items-center space-x-12 overflow-x-auto pb-4 mb-8 scrollbar-hide border-b border-gray-100">
+    {% for category in categories %}
+    <a href="?category={{ category.id }}" class="flex flex-col items-center min-w-max group cursor-pointer border-b-2 {% if active_category == category.id|stringformat:'s' %}border-black text-black{% else %}border-transparent text-gray-500 hover:text-black hover:border-gray-300{% endif %} pb-2 transition">
+        <i class="fas fa-{{ category.icon }} text-2xl mb-2"></i>
+        <span class="text-xs font-semibold">{{ category.name }}</span>
+    </a>
+    {% endfor %}
+</div>
+
+<!-- Listings Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {% for listing in listings %}
+    <a href="{% url 'listing_detail' listing.id %}" class="group cursor-pointer block">
+        <div class="aspect-square w-full overflow-hidden rounded-xl mb-3 relative">
+            {% if listing.images %}
+                <img src="{{ listing.images.0 }}" alt="{{ listing.title }}" class="h-full w-full object-cover group-hover:scale-105 transition duration-300">
+            {% else %}
+                <div class="h-full w-full bg-gray-200 flex items-center justify-center">
+                    <i class="fas fa-image text-gray-400 text-4xl"></i>
+                </div>
+            {% endif %}
+            <div class="absolute top-3 right-3 text-white text-xl">
+                <i class="far fa-heart"></i>
+            </div>
+        </div>
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="font-bold text-sm">{{ listing.location }}</h3>
+                <p class="text-gray-500 text-sm">{{ listing.category.name }}</p>
+                <p class="text-gray-500 text-sm">Hosted by {{ listing.provider.first_name }}</p>
+                <div class="mt-1">
+                    <span class="font-bold">${{ listing.base_price }}</span> <span class="text-gray-500 font-normal">night</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-1">
+                <i class="fas fa-star text-xs"></i>
+                <span class="text-sm">New</span>
+            </div>
+        </div>
+    </a>
+    {% empty %}
+    <div class="col-span-full text-center py-20">
+        <i class="fas fa-search text-5xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-semibold">No listings found</h3>
+        <p class="text-gray-500">Try adjusting your filters or search criteria.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

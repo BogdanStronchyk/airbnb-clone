@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Airbnb Clone{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans text-gray-900">
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <a href="/" class="text-rose-500 text-2xl font-bold flex items-center">
+                        <i class="fab fa-airbnb mr-2 text-3xl"></i>
+                        <span>airbnb</span>
+                    </a>
+                </div>
+                
+                <div class="hidden sm:flex flex-grow justify-center max-w-md mx-4">
+                    <div class="flex items-center bg-white border border-gray-300 rounded-full py-2 px-4 shadow-sm hover:shadow-md transition cursor-pointer w-full">
+                        <span class="text-sm font-semibold border-r border-gray-300 pr-4 mr-4">Anywhere</span>
+                        <span class="text-sm font-semibold border-r border-gray-300 pr-4 mr-4">Any week</span>
+                        <span class="text-sm text-gray-500">Add guests</span>
+                        <div class="ml-auto bg-rose-500 p-2 rounded-full text-white">
+                            <i class="fas fa-search text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="text-sm font-semibold hover:bg-gray-100 py-2 px-4 rounded-full transition">Airbnb your home</a>
+                    
+                    <div class="relative">
+                        <button id="user-menu-button" class="flex items-center border border-gray-300 rounded-full py-1 px-2 space-x-2 hover:shadow-md transition cursor-pointer focus:outline-none">
+                            <i class="fas fa-bars text-gray-500 ml-1"></i>
+                            <div class="bg-gray-500 rounded-full h-8 w-8 flex items-center justify-center text-white">
+                                {% if user.is_authenticated %}
+                                    <span class="text-sm font-bold">{{ user.username|first|upper }}</span>
+                                {% else %}
+                                    <i class="fas fa-user text-xs"></i>
+                                {% endif %}
+                            </div>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="user-menu" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 hidden border border-gray-200">
+                            {% if user.is_authenticated %}
+                                <div class="px-4 py-2 font-semibold border-b border-gray-200">Hello, {{ user.username }}</div>
+                                <a href="{% url 'inbox' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Messages</a>
+                                <a href="{% url 'trips' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Trips</a>
+                                <div class="border-t border-gray-200 my-1"></div>
+                                <a href="{% url 'logout_page' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log out</a>
+                            {% else %}
+                                <a href="{% url 'register_page' %}" class="block px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100">Sign up</a>
+                                <a href="{% url 'login_page' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Log in</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const button = document.getElementById('user-menu-button');
+            const menu = document.getElementById('user-menu');
+            
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                menu.classList.toggle('hidden');
+            });
+            
+            document.addEventListener('click', function(e) {
+                if (!menu.contains(e.target) && !button.contains(e.target)) {
+                    menu.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="p-4 mb-2 text-sm text-white rounded-lg {% if message.tags == 'error' %}bg-red-500{% else %}bg-green-500{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-100 border-t border-gray-200 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h5 class="font-bold mb-4">Support</h5>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>Help Centre</li>
+                        <li>AirCover</li>
+                        <li>Supporting people with disabilities</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-bold mb-4">Community</h5>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>Airbnb.org: disaster relief housing</li>
+                        <li>Combating discrimination</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-bold mb-4">Hosting</h5>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>Airbnb your home</li>
+                        <li>AirCover for Hosts</li>
+                        <li>Explore hosting resources</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-bold mb-4">Airbnb</h5>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>Newsroom</li>
+                        <li>Learn about new features</li>
+                        <li>Letter from our founders</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
