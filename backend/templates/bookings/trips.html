@@ -40,13 +40,16 @@
                             {% if booking.status == 'completed' or booking.end_date < now.date %}
                                 {% if not booking.review %}
                                 <a href="{% url 'add_review' booking.id %}" class="text-center block w-full py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition font-semibold">
-                                    Leave a Review
+                                    Review Listing
                                 </a>
                                 {% else %}
                                 <div class="text-center w-full py-2 text-gray-500 bg-gray-100 rounded-lg text-sm flex items-center justify-center">
-                                    <i class="fas fa-check-circle mr-2"></i> Reviewed ({{ booking.review.rating }} <i class="fas fa-star text-xs"></i>)
+                                    <i class="fas fa-check-circle mr-2"></i> Listing Reviewed ({{ booking.review.rating }} <i class="fas fa-star text-xs"></i>)
                                 </div>
                                 {% endif %}
+                                <a href="{% url 'review_host' booking.listing.provider.id %}" class="text-center block w-full py-2 mt-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition font-semibold text-sm">
+                                    Review Host
+                                </a>
                             {% endif %}
                         </div>
                     </div>

@@ -2,21 +2,21 @@
 
 This document outlines features and enhancements planned for future development beyond the initial Minimum Viable Product (MVP).
 
-## 1. Advanced Search and Filtering
+## 1. Advanced Search and Filtering - DONE
 - **Map Integration**: Implement a map view (e.g., using Mapbox or Google Maps) to display listings geographically.
 - **Dynamic Filtering**: Add filters for price range, specific amenities, number of rooms/beds, and property types.
 - **Date-based Availability Search**: Ensure search results only show listings available for the selected dates.
 
-## 2. Advanced Availability Management
+## 2. Advanced Availability Management - DONE
 - **Calendar UI for Hosts**: Provide a calendar interface for hosts to manage their listing availability (block dates, set custom prices).
 - **Time Slots**: Support time-based bookings (e.g., hourly for tours or experiences), not just daily bookings.
 
-## 3. Real Payment Gateway Integration
+## 3. Real Payment Gateway Integration - ON HOLD
 - **Stripe/PayPal Integration**: Replace the simulated booking process with a secure, real-world payment gateway.
 - **Service Fees**: Implement logic for platform service fees and host payouts.
 - **Cancellation Policies**: Support different cancellation policies (flexible, moderate, strict) and automate refunds.
 
-## 4. Enhanced User Profiles
+## 4. Enhanced User Profiles - DONE
 - **User Verification**: Implement identity verification (ID upload, phone number verification) to increase trust.
 - **Host Dashboard**: Create a dedicated dashboard for hosts to track earnings, view upcoming bookings, and manage listings efficiently.
 - **Profile Reviews**: Display overall ratings and reviews on user profiles, not just on listings.

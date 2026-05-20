@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Review Host {{ host.username }} - Airbnb Clone{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <h1 class="text-3xl font-bold mb-6">Review your host: {{ host.username }}</h1>
+    
+    <form method="post" action="{% url 'review_host' host.id %}" class="bg-white p-6 rounded-xl shadow border border-gray-200">
+        {% csrf_token %}
+        
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Rating (1-5)</label>
+            <div class="flex items-center space-x-4">
+                <label class="flex flex-col items-center cursor-pointer">
+                    <input type="radio" name="rating" value="1" required class="mb-1 text-rose-500 focus:ring-rose-500 h-4 w-4">
+                    <span>1</span>
+                </label>
+                <label class="flex flex-col items-center cursor-pointer">
+                    <input type="radio" name="rating" value="2" class="mb-1 text-rose-500 focus:ring-rose-500 h-4 w-4">
+                    <span>2</span>
+                </label>
+                <label class="flex flex-col items-center cursor-pointer">
+                    <input type="radio" name="rating" value="3" class="mb-1 text-rose-500 focus:ring-rose-500 h-4 w-4">
+                    <span>3</span>
+                </label>
+                <label class="flex flex-col items-center cursor-pointer">
+                    <input type="radio" name="rating" value="4" class="mb-1 text-rose-500 focus:ring-rose-500 h-4 w-4">
+                    <span>4</span>
+                </label>
+                <label class="flex flex-col items-center cursor-pointer">
+                    <input type="radio" name="rating" value="5" class="mb-1 text-rose-500 focus:ring-rose-500 h-4 w-4">
+                    <span>5</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Comment</label>
+            <textarea name="comment" rows="5" required class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-rose-500" placeholder="How was your experience with this host?"></textarea>
+        </div>
+        
+        <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 rounded-lg transition">
+            Submit Review
+        </button>
+    </form>
+</div>
+{% endblock %}

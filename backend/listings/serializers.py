@@ -20,7 +20,7 @@ class ServiceListingSerializer(serializers.ModelSerializer):
         model = ServiceListing
         fields = (
             'id', 'provider', 'provider_name', 'category', 'category_name', 
-            'title', 'description', 'location', 'base_price', 'currency', 
+            'title', 'description', 'location', 'latitude', 'longitude', 'base_price', 'currency', 
             'images', 'is_active', 'specific_attributes', 'availability',
             'created_at', 'updated_at'
         )
