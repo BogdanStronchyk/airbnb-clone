@@ -2,37 +2,49 @@
 
 This document outlines features and enhancements planned for future development beyond the initial Minimum Viable Product (MVP).
 
-## 1. Advanced Search and Filtering - DONE
-- **Map Integration**: Implement a map view (e.g., using Mapbox or Google Maps) to display listings geographically.
-- **Dynamic Filtering**: Add filters for price range, specific amenities, number of rooms/beds, and property types.
-- **Date-based Availability Search**: Ensure search results only show listings available for the selected dates.
+## Implemented Features (for MVP):
 
-## 2. Advanced Availability Management - DONE
-- **Calendar UI for Hosts**: Provide a calendar interface for hosts to manage their listing availability (block dates, set custom prices).
-- **Time Slots**: Support time-based bookings (e.g., hourly for tours or experiences), not just daily bookings.
+### User Authentication and Profiles
+- User registration, login, logout
+- User profiles
+- Becoming a host
+- User Reviews (for hosts)
 
-## 3. Real Payment Gateway Integration - ON HOLD
-- **Stripe/PayPal Integration**: Replace the simulated booking process with a secure, real-world payment gateway.
-- **Service Fees**: Implement logic for platform service fees and host payouts.
-- **Cancellation Policies**: Support different cancellation policies (flexible, moderate, strict) and automate refunds.
+### Listing Management
+- Creating, editing, viewing listings
+- Service categories
+- Host dashboard
 
-## 4. Enhanced User Profiles - DONE
-- **User Verification**: Implement identity verification (ID upload, phone number verification) to increase trust.
-- **Host Dashboard**: Create a dedicated dashboard for hosts to track earnings, view upcoming bookings, and manage listings efficiently.
-- **Profile Reviews**: Display overall ratings and reviews on user profiles, not just on listings.
+### Search and Filtering
+- Basic search
+- Listing detail view
 
-## 5. Media Management
-- **Image Uploads**: Allow users (hosts) to upload images directly to the platform (using cloud storage like AWS S3).
-- **Image Optimization**: Automatically resize and compress uploaded images for better performance.
+### Booking System
+- Booking creation
+- Trips view for users
+- Booking approval/denial by host
+- Reviews for bookings
 
-## 6. Real-time Features
-- **Live Messaging**: Upgrade the basic messaging system to use WebSockets (e.g., Django Channels) for instant message delivery without page reloads.
-- **Real-time Notifications**: Notify users instantly about new booking requests, messages, or review submissions.
+### Messaging
+- Basic messaging system
+- Inbox and conversation views
 
-## 7. Wishlists & Favorites
-- **Save Listings**: Allow users to save favorite listings to customized wishlists for future reference.
+### Availability Management
+- Setting availability for listings
 
-## 8. Deployment and Infrastructure
-- **Production Environment setup**: Configure Nginx, Gunicorn, PostgreSQL, and a robust caching layer (e.g., Redis).
-- **CI/CD Pipeline**: Implement continuous integration and deployment workflows.
-- **Containerization**: Use Docker to containerize the application for consistent deployments.
+## Yet-to-be-implemented Features (for MVP):
+
+### Critical for MVP (High Priority)
+1.  **Real Payment Gateway Integration:** Implement a secure, real-world payment gateway (e.g., Stripe/PayPal) to replace the simulated booking process. Include logic for platform service fees, host payouts, and cancellation policies.
+2.  **Media Management:** Allow users (hosts) to upload and manage listing images. Implement cloud storage (e.g., AWS S3) and image optimization (resize, compress).
+
+### Important for Enhanced MVP (Medium Priority)
+3.  **Advanced Search and Filtering:** Implement map integration for geographical display of listings, dynamic filtering (price range, amenities, rooms/beds, property types), and robust date-based availability search.
+4.  **Advanced Availability Management:** Develop a calendar UI for hosts to easily manage listing availability (block dates, set custom prices) and support time-based bookings.
+5.  **Real-time Features:** Upgrade the messaging system with WebSockets for live chat and implement real-time notifications for booking requests, messages, etc.
+
+### Desirable Features (Lower Priority)
+6.  **Wishlists & Favorites:** Allow users to save and organize favorite listings.
+
+### Essential for Production Deployment (High Priority - Infrastructure)
+7.  **Deployment and Infrastructure:** Set up a production environment with Nginx, Gunicorn, PostgreSQL, caching (Redis). Implement CI/CD pipelines and containerize the application using Docker.
