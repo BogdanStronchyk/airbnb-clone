@@ -14,15 +14,34 @@ def home_view(request):
     listings = ServiceListing.objects.filter(is_active=True)
     
     category_id = request.GET.get('category')
-    location_query = request.GET.get('location')
-    min_price = request.GET.get('min_price')
-    max_price = request.GET.get('max_price')
-
     if category_id:
         listings = listings.filter(category_id=category_id)
         
+    context = {
+        'categories': categories,
+        'listings': listings,
+        'active_category': category_id
+    }
+    return render(request, 'listings/index.html', context)
+
+def search_view(request):
+    categories = ServiceCategory.objects.all()
+    listings = ServiceListing.objects.filter(is_active=True)
+    
+    location_query = request.GET.get('location')
+    date_query = request.GET.get('date') # Simplistic date search for MVP
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    category_id = request.GET.get('category')
+
     if location_query:
         listings = listings.filter(location__icontains=location_query)
+        
+    if category_id:
+        listings = listings.filter(category_id=category_id)
+        
+    # Note: Proper date search requires checking Availability model, simplified here
+    # For a real implementation, you'd filter out listings booked on that date
         
     if min_price:
         try:
@@ -35,7 +54,7 @@ def home_view(request):
             listings = listings.filter(base_price__lte=float(max_price))
         except ValueError:
             pass
-        
+            
     context = {
         'categories': categories,
         'listings': listings,
@@ -44,7 +63,7 @@ def home_view(request):
         'search_min_price': min_price,
         'search_max_price': max_price,
     }
-    return render(request, 'listings/index.html', context)
+    return render(request, 'listings/search.html', context)
 
 def listing_detail(request, pk):
     listing = get_object_or_404(ServiceListing, pk=pk)

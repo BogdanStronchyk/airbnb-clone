@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Results - Airbnb Clone{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">Search Results</h1>
+
+    <div class="flex flex-col md:flex-row gap-8">
+        <!-- Filters Sidebar -->
+        <div class="w-full md:w-1/4">
+            <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm sticky top-24">
+                <h3 class="font-bold text-xl mb-6">Filters</h3>
+                
+                <form action="{% url 'search_page' %}" method="get">
+                    <!-- Preserve existing search parameters -->
+                    <input type="hidden" name="location" value="{{ request.GET.location }}">
+                    <input type="hidden" name="date" value="{{ request.GET.date }}">
+                    
+                    <div class="mb-6">
+                        <h4 class="font-semibold mb-3">Price range</h4>
+                        <div class="flex items-center gap-4">
+                            <div class="w-full">
+                                <label class="text-xs text-gray-500">Min</label>
+                                <div class="flex items-center border border-gray-300 rounded-lg px-3 py-2">
+                                    <span class="mr-2">$</span>
+                                    <input type="number" name="min_price" value="{{ search_min_price }}" placeholder="0" class="w-full outline-none">
+                                </div>
+                            </div>
+                            <div class="w-full">
+                                <label class="text-xs text-gray-500">Max</label>
+                                <div class="flex items-center border border-gray-300 rounded-lg px-3 py-2">
+                                    <span class="mr-2">$</span>
+                                    <input type="number" name="max_price" value="{{ search_max_price }}" placeholder="1000+" class="w-full outline-none">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6 border-t border-gray-200 pt-6">
+                        <h4 class="font-semibold mb-3">Category</h4>
+                        <div class="space-y-2">
+                            {% for category in categories %}
+                            <label class="flex items-center space-x-3 cursor-pointer">
+                                <input type="radio" name="category" value="{{ category.id }}" {% if active_category == category.id|stringformat:'s' %}checked{% endif %} class="form-radio h-5 w-5 text-rose-600 focus:ring-rose-500 cursor-pointer">
+                                <span>{{ category.name }}</span>
+                            </label>
+                            {% endfor %}
+                            <label class="flex items-center space-x-3 cursor-pointer">
+                                <input type="radio" name="category" value="" {% if not active_category %}checked{% endif %} class="form-radio h-5 w-5 text-rose-600 focus:ring-rose-500 cursor-pointer">
+                                <span>Any Category</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 rounded-lg transition mt-4">
+                        Apply Filters
+                    </button>
+                    <a href="{% url 'search_page' %}" class="block w-full text-center py-3 underline font-semibold mt-2">Clear all</a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Search Results Grid -->
+        <div class="w-full md:w-3/4">
+            <div class="mb-4 text-gray-600">
+                {% if request.GET.location %}
+                    Showing results for <span class="font-semibold text-black">{{ request.GET.location }}</span>
+                    {% if request.GET.date %} around <span class="font-semibold text-black">{{ request.GET.date }}</span>{% endif %}
+                {% elif request.GET.date %}
+                    Showing results around <span class="font-semibold text-black">{{ request.GET.date }}</span>
+                {% else %}
+                    Showing all listings
+                {% endif %}
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for listing in listings %}
+                <a href="{% url 'listing_detail' listing.id %}" class="group cursor-pointer block">
+                    <div class="aspect-square w-full overflow-hidden rounded-xl mb-3 relative">
+                        {% if listing.images %}
+                            <img src="{{ listing.images.0 }}" alt="{{ listing.title }}" class="h-full w-full object-cover group-hover:scale-105 transition duration-300">
+                        {% else %}
+                            <div class="h-full w-full bg-gray-200 flex items-center justify-center">
+                                <i class="fas fa-image text-gray-400 text-4xl"></i>
+                            </div>
+                        {% endif %}
+                        <div class="absolute top-3 right-3 text-white text-xl">
+                            <i class="far fa-heart"></i>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-bold text-sm">{{ listing.location }}</h3>
+                            <p class="text-gray-500 text-sm">{{ listing.category.name }}</p>
+                            <p class="text-gray-500 text-sm">Hosted by {{ listing.provider.first_name }}</p>
+                            <div class="mt-1">
+                                <span class="font-bold">${{ listing.base_price }}</span> <span class="text-gray-500 font-normal">night</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-star text-xs"></i>
+                            <span class="text-sm">New</span>
+                        </div>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="col-span-full text-center py-20 bg-gray-50 rounded-2xl">
+                    <i class="fas fa-search text-5xl text-gray-300 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">No listings found</h3>
+                    <p class="text-gray-500">Try adjusting your filters or search criteria.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
