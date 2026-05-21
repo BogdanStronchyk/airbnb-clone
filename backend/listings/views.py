@@ -68,7 +68,7 @@ def search_view(request):
 import json
 
 def listing_detail(request, pk):
-    listing = get_object_or_404(ServiceListing, pk=pk)
+    listing = get_object_or_404(ServiceListing.objects.prefetch_related('bookings__review', 'bookings__customer'), pk=pk)
     # Get future confirmed bookings for this listing to show occupancy
     from django.utils import timezone
     occupied_periods = Booking.objects.filter(
@@ -85,10 +85,12 @@ def listing_detail(request, pk):
             "to": period.end_date.strftime('%Y-%m-%d')
         })
     
+    from django.conf import settings
     return render(request, 'listings/detail.html', {
         'listing': listing,
         'occupied_periods': occupied_periods,
-        'disabled_dates_json': json.dumps(disabled_dates)
+        'disabled_dates_json': json.dumps(disabled_dates),
+        'stripe_public_key': settings.STRIPE_PUBLIC_KEY
     })
 
 from django.db.models import Sum

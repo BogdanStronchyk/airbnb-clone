@@ -1,0 +1,20 @@
+# Block environment files containing API keys
+.env
+.env.*
+*.env
+
+# Block specific cloud/tool configuration directories
+.aws/
+.gcloud/
+.vercel/
+.serverless/
+
+# Block private keys and certificates
+*.pem
+*.key
+id_rsa
+id_dsa
+
+# Block local config overrides
+config/local.json
+config/secrets.*

@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'airbnb',
         'USER': 'postgres',
-        'PASSWORD': 'password',
+        'PASSWORD': os.environ.get("DATABASE_PASSWORD", ""),
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -144,3 +144,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ],
 }
+
+# Stripe Configuration
+import os
+STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', 'pk_test_placeholder')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', 'sk_test_placeholder')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', 'whsec_test_placeholder')

@@ -28,7 +28,46 @@ def simulate_occupancy():
     total_simulated = 0
 
     for listing in listings:
-        # Generate 2 to 5 random booking periods for each listing
+        # Generate 2 to 5 random past bookings with reviews
+        num_past_bookings = random.randint(2, 5)
+        past_date = today - timedelta(days=90)
+        
+        for _ in range(num_past_bookings):
+            gap_days = random.randint(1, 14)
+            past_date += timedelta(days=gap_days)
+            booking_length = random.randint(3, 10)
+            end_date = past_date + timedelta(days=booking_length)
+            
+            if end_date >= today:
+                break
+                
+            customer = random.choice(dummy_users)
+            booking = Booking.objects.create(
+                customer=customer,
+                listing=listing,
+                start_date=past_date,
+                end_date=end_date,
+                total_price=listing.base_price * booking_length,
+                status='completed'
+            )
+            
+            from bookings.models import Review
+            Review.objects.create(
+                booking=booking,
+                reviewer=customer,
+                rating=random.randint(4, 5),
+                comment=random.choice([
+                    "Great experience, would highly recommend!",
+                    "Very nice place and a wonderful host.",
+                    "Clean, comfortable, and exactly as described.",
+                    "We had a fantastic time staying here.",
+                    "Excellent location and great amenities."
+                ])
+            )
+            
+            past_date = end_date
+
+        # Generate 2 to 5 random future booking periods for each listing
         num_bookings = random.randint(2, 5)
         
         # Start looking for dates from today up to 60 days in the future
@@ -57,7 +96,7 @@ def simulate_occupancy():
             # Move current_date to after this booking so they don't overlap easily
             current_date = end_date
 
-    print(f"Successfully generated {total_simulated} simulated bookings to reflect occupancy.")
+    print(f"Successfully generated {total_simulated} simulated future bookings and past reviews to reflect occupancy.")
 
 if __name__ == '__main__':
     simulate_occupancy()

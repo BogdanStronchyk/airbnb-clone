@@ -6,6 +6,8 @@
 <!-- Include Flatpickr CSS & JS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!-- Include Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
 
 <div class="max-w-5xl mx-auto">
     <div class="mb-6">
@@ -146,7 +148,7 @@
                     <span class="text-gray-500 ml-1">/ {{ listing.get_pricing_type_display|lower|default:"per night" }}</span>
                 </div>
 
-                <form method="post" action="{% url 'book_listing' listing.id %}">
+                <form id="payment-form">
                     {% csrf_token %}
                     <div class="border border-gray-300 rounded-xl overflow-hidden mb-4">
                         <div class="grid grid-cols-2 border-b border-gray-300">
@@ -162,11 +164,11 @@
                         <div class="grid grid-cols-2 border-b border-gray-300">
                             <div class="p-3 border-r border-gray-300">
                                 <label class="block text-xs font-bold uppercase mb-1">Start Time (Opt)</label>
-                                <input type="time" name="start_time" class="w-full text-sm outline-none bg-transparent cursor-pointer bg-white">
+                                <input type="time" name="start_time" id="start-time" class="w-full text-sm outline-none bg-transparent cursor-pointer bg-white">
                             </div>
                             <div class="p-3">
                                 <label class="block text-xs font-bold uppercase mb-1">End Time (Opt)</label>
-                                <input type="time" name="end_time" class="w-full text-sm outline-none bg-transparent cursor-pointer bg-white">
+                                <input type="time" name="end_time" id="end-time" class="w-full text-sm outline-none bg-transparent cursor-pointer bg-white">
                             </div>
                         </div>
                         <div class="p-3">
@@ -180,9 +182,15 @@
                         </div>
                     </div>
                     
+                    <div id="payment-element" class="mb-4 hidden">
+                        <!-- Stripe Elements will be inserted here -->
+                    </div>
+                    <div id="error-message" class="text-red-500 text-sm mb-4"></div>
+                    
                     {% if user.is_authenticated %}
-                        <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 rounded-xl transition">
-                            Reserve
+                        <button id="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 rounded-xl transition">
+                            <div class="spinner hidden" id="spinner"></div>
+                            <span id="button-text">Reserve & Pay</span>
                         </button>
                     {% else %}
                         <a href="#" class="block text-center w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 rounded-xl transition">
@@ -190,7 +198,6 @@
                         </a>
                     {% endif %}
                 </form>
-                <div class="text-center text-sm text-gray-500 mt-4">You won't be charged yet</div>
             </div>
         </div>
     </div>
@@ -247,6 +254,146 @@
             disable: disabledDateRanges,
             dateFormat: "Y-m-d",
         });
+
+        const stripe = Stripe('{{ stripe_public_key }}');
+        
+        let elements;
+
+        const form = document.getElementById('payment-form');
+        
+        if (form) {
+             form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                setLoading(true);
+    
+                const startDate = document.getElementById('checkin-date').value;
+                const endDate = document.getElementById('checkout-date').value;
+                const startTime = document.getElementById('start-time').value;
+                const endTime = document.getElementById('end-time').value;
+                const listingId = parseInt("{{ listing.id }}", 10);
+    
+                if (!startDate || !endDate) {
+                    showMessage("Please select check-in and checkout dates.");
+                    setLoading(false);
+                    return;
+                }
+    
+                if (!elements) {
+                    // 1. Create booking and PaymentIntent on the server
+                    try {
+                        const response = await fetch('/api/bookings/bookings/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                            },
+                            body: JSON.stringify({
+                                listing: listingId,
+                                start_date: startDate,
+                                end_date: endDate,
+                                start_time: startTime || null,
+                                end_time: endTime || null
+                            }),
+                        });
+        
+                        const data = await response.json();
+        
+                        if (!response.ok) {
+                             console.error("Booking creation failed. Response data:", data);
+                             // The backend might return validation errors as an object, e.g., {"start_date": ["This field is required."]}
+                             // Or as a string in data.error
+                             let errorMsg = "Failed to initiate booking";
+                             if (data.error) {
+                                 errorMsg = data.error;
+                             } else if (typeof data === 'object') {
+                                 errorMsg = JSON.stringify(data);
+                             }
+                             throw new Error(errorMsg);
+                        }
+        
+                        const clientSecret = data.client_secret;
+                        
+                        if (!clientSecret) {
+                            throw new Error("No client secret returned from server");
+                        }
+        
+                        // 2. Initialize Stripe Elements with the clientSecret
+                        const appearance = {
+                            theme: 'stripe',
+                        };
+                        elements = stripe.elements({ appearance, clientSecret });
+        
+                        const paymentElement = elements.create("payment");
+                        const paymentElementDiv = document.getElementById('payment-element');
+                        paymentElementDiv.classList.remove('hidden');
+                        paymentElement.mount("#payment-element");
+                        
+                        document.getElementById('button-text').innerText = "Confirm Payment";
+                        setLoading(false);
+                        
+                    } catch (error) {
+                        showMessage(error.message);
+                        setLoading(false);
+                        return;
+                    }
+                } else {
+                    // 3. Confirm the payment
+                    const { error } = await stripe.confirmPayment({
+                        elements,
+                        confirmParams: {
+                            return_url: window.location.origin + "{% url 'trips' %}", // Redirect after success
+                        },
+                    });
+        
+                    if (error) {
+                        if (error.type === "card_error" || error.type === "validation_error") {
+                            showMessage(error.message);
+                        } else {
+                            showMessage("An unexpected error occurred.");
+                        }
+                    } else {
+                        // Payment succeeded, will be redirected by Stripe
+                    }
+                    setLoading(false);
+                }
+            });
+        }
+        
+
+        function showMessage(messageText) {
+            const messageContainer = document.querySelector("#error-message");
+            messageContainer.classList.remove("hidden");
+            messageContainer.textContent = messageText;
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                document.querySelector("#submit").disabled = true;
+                document.querySelector("#spinner").classList.remove("hidden");
+                // document.querySelector("#button-text").classList.add("hidden");
+            } else {
+                document.querySelector("#submit").disabled = false;
+                document.querySelector("#spinner").classList.add("hidden");
+                // document.querySelector("#button-text").classList.remove("hidden");
+            }
+        }
     });
 </script>
+<style>
+  .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border-left-color: #09f;
+      animation: spin 1s ease infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 5px;
+  }
+  @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+  }
+</style>
 {% endblock %}
