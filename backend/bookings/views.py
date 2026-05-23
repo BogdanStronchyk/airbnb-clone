@@ -59,6 +59,37 @@ def stripe_webhook(request):
     return HttpResponse(status=200)
 
 @login_required(login_url='/api/users/login/')
+def cancel_booking(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id, customer=request.user)
+    
+    if booking.status in ['cancelled', 'completed']:
+        messages.error(request, f"Booking cannot be cancelled because its status is {booking.status}.")
+        return redirect('trips')
+
+    if booking.payment_status == 'succeeded':
+        # Logic to refund based on cancellation policy
+        refund_amount = booking.total_price  # Default: full refund
+        cancellation_policy = booking.listing.cancellation_policy
+
+        if cancellation_policy:
+            days_before_start = (booking.start_date - timezone.now().date()).days
+            if days_before_start <= cancellation_policy.days_before_start:
+                refund_amount = booking.total_price * (cancellation_policy.refund_percentage / 100)
+
+        # In a real scenario, make a call to Stripe API to process the refund here
+        # stripe.Refund.create(payment_intent=booking.stripe_payment_intent_id, amount=int(refund_amount * 100))
+        
+        if refund_amount > 0:
+            booking.payment_status = 'refunded' # or partially_refunded
+        else:
+             booking.payment_status = 'succeeded' # Keep as succeeded if no refund
+
+    booking.status = 'cancelled'
+    booking.save()
+    messages.success(request, "Booking cancelled successfully.")
+    return redirect('trips')
+
+@login_required(login_url='/api/users/login/')
 def trips_view(request):
     bookings = Booking.objects.filter(customer=request.user).order_by('-start_date')
     return render(request, 'bookings/trips.html', {'bookings': bookings, 'now': timezone.now()})
@@ -123,6 +154,11 @@ class BookingViewSet(viewsets.ModelViewSet):
              
         total_price = listing.base_price * num_days
         
+        # Calculate platform fee and host payout
+        platform_fee_percentage = listing.platform_fee_percentage / 100
+        platform_fee = total_price * platform_fee_percentage
+        host_payout_amount = total_price - platform_fee
+        
         try:
             # Create a PaymentIntent with the order amount and currency
             intent = stripe.PaymentIntent.create(
@@ -135,6 +171,8 @@ class BookingViewSet(viewsets.ModelViewSet):
             booking = serializer.save(
                 customer=self.request.user, 
                 total_price=total_price,
+                platform_fee=platform_fee,
+                host_payout_amount=host_payout_amount,
                 stripe_payment_intent_id=intent.id,
                 payment_status='pending'
             )
