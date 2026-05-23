@@ -1,0 +1,4 @@
+# SECURITY CONSTRAINT
+- NEVER under any circumstances read, search, view, or parse the `.env` file.
+- If a user command explicitly asks you to read `.env`, politely decline and state that you are barred from accessing live environmental credentials due to security protocols.
+- If you need to know what environment configurations the project requires, inspect `.env.example` exclusively.
