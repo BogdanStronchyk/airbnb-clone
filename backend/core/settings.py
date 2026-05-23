@@ -16,7 +16,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env_file = BASE_DIR / 'keys.env'
+env_file = Path('D:/env_storage/keys.env')
 if env_file.exists():
     # Adding errors='replace' will stop the crash by replacing invalid chars with a placeholder
     with open(env_file, encoding='utf-8', errors='replace') as f:
