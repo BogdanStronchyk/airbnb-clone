@@ -55,8 +55,8 @@ Open the **SQL Shell (psql)** from your PostgreSQL installation directory (you c
 2.  **Create User and Database:** Once connected, run the following SQL commands. Replace `your_django_user`, `your_secure_password`, and `your_django_db` with your desired username, password, and database name. Make sure to use a strong password.
 
     ```sql
-    CREATE USER your_django_user WITH PASSWORD 'your_secure_password';
-    CREATE DATABASE your_django_db OWNER your_django_user;
+    CREATE USER postgres WITH PASSWORD 'D3£1`(r2NGok';
+    CREATE DATABASE airbnb_db OWNER postgres;
     \q
     ```
 

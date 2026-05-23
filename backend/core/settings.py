@@ -18,7 +18,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 env_file = BASE_DIR / 'keys.env'
 if env_file.exists():
-    with open(env_file) as f:
+    # Adding errors='replace' will stop the crash by replacing invalid chars with a placeholder
+    with open(env_file, encoding='utf-8', errors='replace') as f:
         for line in f:
             line = line.strip()
             if line and not line.startswith('#'):
@@ -96,7 +97,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'airbnb',
+        'NAME': 'airbnb_db',
         'USER': 'postgres',
         'PASSWORD': os.environ.get("DATABASE_PASSWORD", ""),
         'HOST': 'localhost',
